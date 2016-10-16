@@ -487,8 +487,10 @@ def get_config(fields):
     Fields should be comma separated.
         i.e. 'version,install_path'
     """
-
-    conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+    
+    path = os.path.dirname(os.path.realpath(__file__))
+    db_path = path + '/' + '../../data/empire.db'
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.isolation_level = None
 
     cur = conn.cursor()
