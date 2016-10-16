@@ -26,7 +26,9 @@ def database_connect():
     """
     try:
         # set the database connectiont to autocommit w/ isolation level
-        conn = sqlite3.connect('./data/empire.db', check_same_thread=False)
+        path = os.path.dirname(os.path.realpath(__file__))
+        db_path = path + '/' + '../../data/empire.db'
+        conn = sqlite3.connect(db_path, check_same_thread=False)
         conn.text_factory = str
         conn.isolation_level = None
         return conn
